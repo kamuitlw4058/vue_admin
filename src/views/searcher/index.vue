@@ -2,21 +2,15 @@
   <div class="app-container">
     <div class="filter-container">
       <el-input v-model="listQuery.title" placeholder="Title" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
+      <!-- <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         Search
-      </el-button>
-      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="getGoodsList">
+      </el-button> -->
+      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         SearchGoods
       </el-button>
-      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">
-        Add
-      </el-button>
-      <el-button v-waves :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload">
-        Export
-      </el-button>
-      <el-checkbox v-model="showReviewer" class="filter-item" style="margin-left:15px;" @change="tableKey=tableKey+1">
+      <!-- <el-checkbox v-model="showReviewer" class="filter-item" style="margin-left:15px;" @change="tableKey=tableKey+1">
         reviewer
-      </el-checkbox>
+      </el-checkbox> -->
     </div>
 
     <el-table
@@ -29,7 +23,7 @@
       style="width: 100%;"
       @sort-change="sortChange"
     >
-      <el-table-column label="ID" prop="id" sortable="custom" align="center" width="80" :class-name="getSortClass('id')">
+      <!-- <el-table-column label="ID" prop="id" sortable="custom" align="center" width="80" :class-name="getSortClass('id')">
         <template slot-scope="{row}">
           <span>{{ row.id }}</span>
         </template>
@@ -38,14 +32,24 @@
         <template slot-scope="{row}">
           <span>{{ row.timestamp | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
         </template>
-      </el-table-column>
-      <el-table-column label="Title" min-width="150px">
+      </el-table-column> -->
+      <el-table-column label="Title">
         <template slot-scope="{row}">
-          <span class="link-type" @click="handleUpdate(row)">{{ row.title }}</span>
-          <el-tag>{{ row.type | typeFilter }}</el-tag>
+          <span>{{ row.title }}</span>
+          <!-- <el-tag>{{ row.type | typeFilter }}</el-tag> -->
         </template>
       </el-table-column>
-      <el-table-column label="Author" width="110px" align="center">
+      <el-table-column label="图片地址">
+        <template slot-scope="{row}">
+          <span>{{ row.img }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="商品图">
+        <template slot-scope="{row}">
+          <img :src="row.img" class="head_pic" width="100px">
+        </template>
+      </el-table-column>
+      <!-- <el-table-column label="Author" width="110px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.author }}</span>
         </template>
@@ -88,7 +92,7 @@
             Delete
           </el-button>
         </template>
-      </el-table-column>
+      </el-table-column> -->
     </el-table>
 
     <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
@@ -141,7 +145,7 @@
 </template>
 
 <script>
-import { fetchList, fetchPv, createArticle, updateArticle } from '@/api/article'
+import { fetchPv, createArticle, updateArticle } from '@/api/article'
 import { fetchGoodsList } from '@/api/goods'
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
@@ -185,9 +189,9 @@ export default {
       listLoading: true,
       listQuery: {
         page: 1,
-        limit: 100,
+        limit: 10,
         importance: undefined,
-        title: undefined,
+        title: '螺丝',
         type: undefined,
         sort: '+id'
       },
@@ -227,32 +231,26 @@ export default {
   methods: {
     getList() {
       this.listLoading = true
-      fetchList(this.listQuery).then(response => {
-        this.list = response.data.items
-        this.total = response.data.total
-
-        // Just to simulate the time of the request
-        setTimeout(() => {
-          this.listLoading = false
-        }, 1.5 * 1000)
+      fetchGoodsList(this.listQuery).then(response => {
+        const hits = response.data.hits.hits
+        var items = []
+        for (const x of hits) {
+          const d = {
+            title: x._source.title,
+            img: 'http://xpxoss.nmm80.com/' + x._source.img
+          }
+          items.push(d)
+        }
+        this.list = items
+        this.total = items.length
+        this.listLoading = false
+      }).catch(error => {
+        console.log(error)
       })
     },
     handleFilter() {
       this.listQuery.page = 1
       this.getList()
-    },
-    getGoodsList() {
-      fetchGoodsList(this.listQuery).then(response => {
-        console.log(response)
-        this.list = response.data.items
-        this.total = response.data.total
-        // Just to simulate the time of the request
-        // setTimeout(() => {
-        //   this.listLoading = false
-        // }, 1.5 * 1000)
-      }).catch(error => {
-        console.log(error)
-      })
     },
     handleModifyStatus(row, status) {
       this.$message({
