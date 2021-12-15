@@ -36,7 +36,29 @@ module.exports = {
       warnings: false,
       errors: true
     },
-    before: require('./mock/mock-server.js')
+    // before: require('./mock/mock-server.js'),
+    proxy: {
+      '/searcher': {
+          // 此处的写法，目的是为了 将 /api 替换成 https://www.baidu.com/
+          target: 'http://localhost:9200/test_es/_search',
+          // 允许跨域
+          changeOrigin: true,
+          // ws: true,
+          pathRewrite: {
+              '^/searcher': ''
+          }
+      },
+      '/dev-api/vue-element-admin':{
+        target: 'http://localhost:10000/admin',
+        // 允许跨域
+        changeOrigin: true,
+        // ws: true,
+        pathRewrite: {
+            '^/dev-api/vue-element-admin': ''
+        }
+      }
+
+  }
   },
   configureWebpack: {
     // provide the app's title in webpack's name field, so that

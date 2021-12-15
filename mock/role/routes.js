@@ -496,7 +496,19 @@ const asyncRoutes = [
       }
     ]
   },
-
+  {
+    path: '/searcher',
+    component: 'layout/Layout',
+    redirect: 'noRedirect',
+    children: [
+      {
+        path: 'index',
+        component: 'views/searcher/index',
+        name: 'GoodsSearcher',
+        meta: { title: 'Searcher', icon: 'clipboard' }
+      }
+    ]
+  },
   {
     path: '/i18n',
     component: 'layout/Layout',

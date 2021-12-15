@@ -382,6 +382,18 @@ export const asyncRoutes = [
       }
     ]
   },
+  {
+    path: '/searcher',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/searcher/index'),
+        name: 'GoodsSearcher',
+        meta: { title: 'Searcher', icon: 'el-icon-search' }
+      }
+    ]
+  },
 
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
